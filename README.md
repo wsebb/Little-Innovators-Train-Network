@@ -99,7 +99,7 @@ pio run -e megaatmega2560_sim
 
 **Alternative:**
 If separate supply unavailable, add capacitors to reduce noise:
-- **>1000µF electrolytic capacitor** near relay modules (smooths voltage drops when relays switch)
+- **1000µF electrolytic capacitor** near relay modules (smooths voltage drops when relays switch)
 - **100nF ceramic capacitor** near each sensor (filters high-frequency switching noise)
 
 
