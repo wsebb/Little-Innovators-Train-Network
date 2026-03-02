@@ -1,0 +1,839 @@
+{
+  "version": 1,
+  "author": "Little Innovators Train Network",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-arduino-mega",
+      "id": "mega",
+      "top": -40,
+      "left": 100,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "us1",
+      "top": -50,
+      "left": -360,
+      "attrs": {
+        "distance": "100"
+      }
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "us2",
+      "top": -50,
+      "left": -160,
+      "attrs": {
+        "distance": "100"
+      }
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "us3",
+      "top": 100,
+      "left": -360,
+      "attrs": {
+        "distance": "100"
+      }
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "us4",
+      "top": 100,
+      "left": -160,
+      "attrs": {
+        "distance": "100"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-us1",
+      "top": -80,
+      "left": -360,
+      "attrs": {
+        "text": "Sensor 1"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-us2",
+      "top": -80,
+      "left": -160,
+      "attrs": {
+        "text": "Sensor 2"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-us3",
+      "top": 70,
+      "left": -360,
+      "attrs": {
+        "text": "Sensor 3"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-us4",
+      "top": 70,
+      "left": -160,
+      "attrs": {
+        "text": "Sensor 4"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 400,
+      "left": 430,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn2",
+      "top": 400,
+      "left": 510,
+      "attrs": {
+        "color": "blue"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-btn1",
+      "top": 450,
+      "left": 435,
+      "attrs": {
+        "text": "Track 1"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-btn2",
+      "top": 450,
+      "left": 515,
+      "attrs": {
+        "text": "Track 2"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "s1g",
+      "top": 310,
+      "left": -380,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "s1r",
+      "top": 310,
+      "left": -340,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "s2g",
+      "top": 310,
+      "left": -240,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "s2r",
+      "top": 310,
+      "left": -200,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "s3g",
+      "top": 310,
+      "left": -100,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "s3r",
+      "top": 310,
+      "left": -60,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "s4g",
+      "top": 310,
+      "left": 40,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "s4r",
+      "top": 310,
+      "left": 80,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "swl",
+      "top": 310,
+      "left": 180,
+      "attrs": {
+        "color": "yellow"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "swr",
+      "top": 310,
+      "left": 220,
+      "attrs": {
+        "color": "yellow"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "st1g",
+      "top": 390,
+      "left": -380,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "st1r",
+      "top": 390,
+      "left": -340,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "st2g",
+      "top": 390,
+      "left": -240,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "st2r",
+      "top": 390,
+      "left": -200,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "st3g",
+      "top": 390,
+      "left": -100,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "st3r",
+      "top": 390,
+      "left": -60,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "st4g",
+      "top": 390,
+      "left": 40,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "st4r",
+      "top": 390,
+      "left": 80,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "swstl",
+      "top": 390,
+      "left": 180,
+      "attrs": {
+        "color": "yellow"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "swstr",
+      "top": 390,
+      "left": 220,
+      "attrs": {
+        "color": "yellow"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-relay-triggers",
+      "top": 280,
+      "left": -110,
+      "attrs": {
+        "text": "Relay Triggers"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-state-s1",
+      "top": 445,
+      "left": -380,
+      "attrs": {
+        "text": "State Signal 1"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-state-s2",
+      "top": 445,
+      "left": -240,
+      "attrs": {
+        "text": "State Signal 2"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-state-s3",
+      "top": 445,
+      "left": -100,
+      "attrs": {
+        "text": "State Signal 3"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-state-s4",
+      "top": 445,
+      "left": 40,
+      "attrs": {
+        "text": "State Signal 4"
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl-state-switch",
+      "top": 445,
+      "left": 170,
+      "attrs": {
+        "text": "State Switch L/R"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "mega:5V",
+      "us1:VCC",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "us1:GND",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:22",
+      "us1:TRIG",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:23",
+      "us1:ECHO",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "us2:VCC",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "us2:GND",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:24",
+      "us2:TRIG",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:25",
+      "us2:ECHO",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "us3:VCC",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "us3:GND",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:26",
+      "us3:TRIG",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:27",
+      "us3:ECHO",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "us4:VCC",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "us4:GND",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:28",
+      "us4:TRIG",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:29",
+      "us4:ECHO",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "btn1:1.l",
+      "mega:30",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "btn1:2.l",
+      "mega:GND.2",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "btn2:1.l",
+      "mega:31",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "btn2:2.l",
+      "mega:GND.2",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "s1g:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:2",
+      "s1g:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "s1r:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:3",
+      "s1r:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "s2g:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:4",
+      "s2g:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "s2r:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5",
+      "s2r:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "s3g:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:6",
+      "s3g:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "s3r:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:7",
+      "s3r:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "s4g:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:8",
+      "s4g:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "s4r:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:9",
+      "s4r:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "swl:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:10",
+      "swl:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:5V",
+      "swr:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:11",
+      "swr:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:32",
+      "st1g:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "st1g:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:33",
+      "st1r:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "st1r:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:34",
+      "st2g:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "st2g:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:35",
+      "st2r:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "st2r:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:36",
+      "st3g:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "st3g:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:37",
+      "st3r:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "st3r:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:38",
+      "st4g:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "st4g:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:39",
+      "st4r:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "st4r:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:40",
+      "swstl:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "swstl:C",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:41",
+      "swstr:A",
+      "",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "mega:GND.1",
+      "swstr:C",
+      "",
+      [
+        "v0"
+      ]
+    ]
+  ],
+  "dependencies": {}
+}
