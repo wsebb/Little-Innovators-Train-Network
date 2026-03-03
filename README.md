@@ -4,6 +4,11 @@ Automated railway signaling control for an Arduino Mega, with ultrasonic train d
 
 Made for Little Innovators (Siemens).
 
+## Prerequisites
+
+- PlatformIO (CLI or VSCode extension).
+- If you want simulation: Wokwi VS Code extension and a Wokwi account.
+
 ## Overview
 
 The firmware controls four logical track zones:
