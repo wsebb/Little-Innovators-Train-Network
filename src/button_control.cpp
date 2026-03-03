@@ -1,19 +1,22 @@
-/**
- * Button Control Module
- */
+/** Button input handling and request gating. */
 
 #include "button_control.h"
 #include "config.h"
 #include "signal_control.h"
 
 /**
- * Monitors button inputs and processes signal requests
+ * @brief Polls both buttons for rising-edge press events.
+ * @param now Current system time in milliseconds.
  */
 void checkButtons(unsigned long now) {
   checkButton1(now);
   checkButton2(now);
 }
 
+/**
+ * @brief Processes button 1 press requests for signal 1.
+ * @param now Current system time in milliseconds.
+ */
 void checkButton1(unsigned long now) {
   static unsigned long lastBtn1PressTime = 0;
   bool btn1Current = digitalRead(BTN1_PIN);
@@ -40,6 +43,10 @@ void checkButton1(unsigned long now) {
   lastBtn1State = btn1Current;
 }
 
+/**
+ * @brief Processes button 2 press requests for signal 2.
+ * @param now Current system time in milliseconds.
+ */
 void checkButton2(unsigned long now) {
   static unsigned long lastBtn2PressTime = 0;
   bool btn2Current = digitalRead(BTN2_PIN);

@@ -1,13 +1,11 @@
-/**
- * Relay Control Module
- * Handles relay activation, timing, and automatic deactivation
- */
+/** Relay pulse timing and deactivation logic. */
 
 #include "relay_control.h"
 #include "config.h"
 
 /**
- * Manages automatic relay deactivation after pulse duration
+ * @brief Deactivates relays whose pulse timeout has elapsed.
+ * @param currentMillis Current system time in milliseconds.
  */
 void manageRelayTimers(unsigned long currentMillis) {
   for (int i = 0; i < 40; i++) {
@@ -19,9 +17,16 @@ void manageRelayTimers(unsigned long currentMillis) {
 }
 
 /**
- * Activates a relay for a specified duration then automatically deactivates
+ * @brief Starts a timed relay pulse and arms EMI blanking.
+ * @param pin Relay pin to pulse.
  */
 void pulsePin(int pin) {
+  if (pin < 0 || pin >= 40) {
+    Serial.print(F("  [RELAY] Invalid pin: "));
+    Serial.println(pin);
+    return;
+  }
+
   digitalWrite(pin, RELAY_ON);
   relayOffTime[pin] = millis() + RELAY_PULSE_MS;
   lastRelayMove = millis(); // Activate EMI blanking

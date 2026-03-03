@@ -1,6 +1,4 @@
-/**
- * Railway Signaling System (Simulation variant)
- */
+/** Simulation firmware entry point and runtime loop. */
 
 #include <Arduino.h>
 #include "config.h"
@@ -28,6 +26,7 @@ SwitchPosition switchPosition = SWITCH_LEFT;
 unsigned long previousSensorCheck = 0;
 unsigned long lockoutTimer = 0;
 unsigned long lastRelayMove = 0;
+unsigned long adaptiveBlankingMs = BLANKING_MS;
 bool isLocked = false;
 
 unsigned long relayOffTime[40] = {0};
@@ -39,6 +38,9 @@ void printStartupBanner();
 void printSystemReady();
 void runStartupSequence();
 
+/**
+ * Initializes simulated hardware state and starts monitoring.
+ */
 void setup() {
   Serial.begin(9600);
   delay(100);
@@ -53,10 +55,14 @@ void setup() {
   runStartupSequence();
 
   lastRelayMove = millis() - BLANKING_MS - 1000;
+  adaptiveBlankingMs = BLANKING_MS;
 
   printSystemReady();
 }
 
+/**
+ * Executes simulation runtime tasks and scheduled sensor scans.
+ */
 void loop() {
   unsigned long currentMillis = millis();
 
@@ -81,19 +87,50 @@ void loop() {
 
   if (currentMillis - previousSensorCheck >= SENSOR_INTERVAL) {
     previousSensorCheck = currentMillis;
+    unsigned long sinceRelay = currentMillis - lastRelayMove;
 
-    if (currentMillis - lastRelayMove < BLANKING_MS) {
+    if (sinceRelay < adaptiveBlankingMs) {
       Serial.print(F("[EMI] Blanking Active ("));
-      Serial.print(BLANKING_MS - (currentMillis - lastRelayMove));
+      Serial.print(adaptiveBlankingMs - sinceRelay);
       Serial.println(F("ms remaining) - Skipping sensor scan"));
       return;
     }
 
     Serial.println(F("[SENSOR] Scanning sensors..."));
     processSensors();
+
+    if (sinceRelay <= adaptiveBlankingMs + SENSOR_INTERVAL) {
+      uint8_t unstableTracks = getLastSensorUnstableCount();
+      unsigned long previousBlanking = adaptiveBlankingMs;
+
+      if (unstableTracks >= 2 && adaptiveBlankingMs < MAX_BLANKING_MS) {
+        adaptiveBlankingMs += BLANKING_STEP_MS;
+        if (adaptiveBlankingMs > MAX_BLANKING_MS) {
+          adaptiveBlankingMs = MAX_BLANKING_MS;
+        }
+      } else if (unstableTracks == 0 && adaptiveBlankingMs > MIN_BLANKING_MS) {
+        if (adaptiveBlankingMs > BLANKING_STEP_MS) {
+          adaptiveBlankingMs -= BLANKING_STEP_MS;
+        }
+        if (adaptiveBlankingMs < MIN_BLANKING_MS) {
+          adaptiveBlankingMs = MIN_BLANKING_MS;
+        }
+      }
+
+      if (adaptiveBlankingMs != previousBlanking) {
+        Serial.print(F("[EMI] Adaptive blanking -> "));
+        Serial.print(adaptiveBlankingMs);
+        Serial.print(F("ms (unstable tracks="));
+        Serial.print(unstableTracks);
+        Serial.println(F(")"));
+      }
+    }
   }
 }
 
+/**
+ * Configures relay pins and sets all relays to inactive state.
+ */
 void initializeRelays() {
   int relayPins[] = {S1_G, S1_R, S2_G, S2_R, S3_G, S3_R, S4_G, S4_R, SW_L, SW_R};
   for (int i = 0; i < 10; i++) {
@@ -103,11 +140,17 @@ void initializeRelays() {
   }
 }
 
+/**
+ * Configures button input pins.
+ */
 void initializeButtons() {
   pinMode(BTN1_PIN, INPUT_PULLUP);
   pinMode(BTN2_PIN, INPUT_PULLUP);
 }
 
+/**
+ * Configures ultrasonic sensor trigger and echo pins.
+ */
 void initializeSensors() {
   pinMode(TRIG1, OUTPUT); pinMode(ECHO1, INPUT);
   pinMode(TRIG2, OUTPUT); pinMode(ECHO2, INPUT);
@@ -120,6 +163,9 @@ void initializeSensors() {
   digitalWrite(TRIG4, LOW);
 }
 
+/**
+ * Prints the simulation startup banner.
+ */
 void printStartupBanner() {
   Serial.println(F(""));
   Serial.println(F("========================================="));
@@ -132,6 +178,9 @@ void printStartupBanner() {
   Serial.println(F(""));
 }
 
+/**
+ * Prints final startup status once initialization is complete.
+ */
 void printSystemReady() {
   Serial.println(F(""));
   Serial.println(F("Initialization complete"));
@@ -140,6 +189,9 @@ void printSystemReady() {
   Serial.println(F(""));
 }
 
+/**
+ * Drives initial signal and switch positions at boot.
+ */
 void runStartupSequence() {
   Serial.println(F("-> [1/5] Setting Signal 1 to RED"));
   digitalWrite(S1_R, RELAY_ON);

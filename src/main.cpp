@@ -1,31 +1,4 @@
-/**
- * Railway Signaling System
- * Version: 2.1
- * 
- * Description:
- *   Automated railway signaling control system with ultrasonic train detection,
- *   button-controlled signal requests, and automatic switch management.
- *   Uses active-low relay logic with EMI blanking protection.
- * 
- * Features:
- *   - 4 ultrasonic sensors for train detection
- *   - 4 bi-directional signals (Red/Green)
- *   - Automatic switch control (Left/Right)
- *   - Manual signal request via buttons
- *   - EMI blanking to prevent sensor noise after relay activation
- *   - Station capacity monitoring
- * 
- * Hardware Requirements:
- *   - Arduino board (Mega recommended due to pin count)
- *   - 4x HC-SR04 ultrasonic sensors
- *   - 10x relay modules (active-low)
- *   - 2x push buttons with pull-up resistors
- * 
- * Author: [Your Name]
- * Company: Siemens Mobility Belgium
- * Date: [Date]
- * License: [License Type]
- */
+const char* const SYSTEM_VERSION = "3.1";
 
 #include <Arduino.h>
 #include "config.h"
@@ -61,6 +34,7 @@ SwitchPosition switchPosition = SWITCH_LEFT;
 unsigned long previousSensorCheck = 0;
 unsigned long lockoutTimer = 0;
 unsigned long lastRelayMove = 0;
+unsigned long adaptiveBlankingMs = BLANKING_MS;
 bool isLocked = false;
 
 // Relay Management Array
@@ -81,6 +55,9 @@ void runStartupSequence();
 // SETUP - INITIALIZE SYSTEM
 // ==========================================
 
+/**
+ * Initializes hardware, applies startup outputs, and starts monitoring.
+ */
 void setup() {
   Serial.begin(9600);
   delay(100); // Allow serial communication to stabilize
@@ -98,6 +75,7 @@ void setup() {
   
   // Reset the blanking timer so first sensor scan isn't blocked
   lastRelayMove = millis() - BLANKING_MS - 1000;
+  adaptiveBlankingMs = BLANKING_MS;
   
   printSystemReady();
 }
@@ -106,6 +84,9 @@ void setup() {
 // MAIN LOOP
 // ==========================================
 
+/**
+ * Executes non-blocking runtime tasks and scheduled sensor scans.
+ */
 void loop() {
   unsigned long currentMillis = millis();
 
@@ -134,17 +115,45 @@ void loop() {
   // 4. SENSOR MONITORING (With EMI blanking)
   if (currentMillis - previousSensorCheck >= SENSOR_INTERVAL) {
     previousSensorCheck = currentMillis;
+    unsigned long sinceRelay = currentMillis - lastRelayMove;
 
     // Check if we're in the EMI blanking period
-    if (currentMillis - lastRelayMove < BLANKING_MS) {
+    if (sinceRelay < adaptiveBlankingMs) {
       Serial.print(F("[EMI] Blanking Active ("));
-      Serial.print(BLANKING_MS - (currentMillis - lastRelayMove));
+      Serial.print(adaptiveBlankingMs - sinceRelay);
       Serial.println(F("ms remaining) - Skipping sensor scan"));
       return; // Skip this sensor cycle
     }
 
     Serial.println(F("[SENSOR] Scanning sensors..."));
     processSensors();
+
+    if (sinceRelay <= adaptiveBlankingMs + SENSOR_INTERVAL) {
+      uint8_t unstableTracks = getLastSensorUnstableCount();
+      unsigned long previousBlanking = adaptiveBlankingMs;
+
+      if (unstableTracks >= 2 && adaptiveBlankingMs < MAX_BLANKING_MS) {
+        adaptiveBlankingMs += BLANKING_STEP_MS;
+        if (adaptiveBlankingMs > MAX_BLANKING_MS) {
+          adaptiveBlankingMs = MAX_BLANKING_MS;
+        }
+      } else if (unstableTracks == 0 && adaptiveBlankingMs > MIN_BLANKING_MS) {
+        if (adaptiveBlankingMs > BLANKING_STEP_MS) {
+          adaptiveBlankingMs -= BLANKING_STEP_MS;
+        }
+        if (adaptiveBlankingMs < MIN_BLANKING_MS) {
+          adaptiveBlankingMs = MIN_BLANKING_MS;
+        }
+      }
+
+      if (adaptiveBlankingMs != previousBlanking) {
+        Serial.print(F("[EMI] Adaptive blanking -> "));
+        Serial.print(adaptiveBlankingMs);
+        Serial.print(F("ms (unstable tracks="));
+        Serial.print(unstableTracks);
+        Serial.println(F(")"));
+      }
+    }
   }
 }
 
@@ -152,6 +161,9 @@ void loop() {
 // INITIALIZATION FUNCTIONS
 // ==========================================
 
+/**
+ * Configures relay pins and sets all relays to inactive state.
+ */
 void initializeRelays() {
   int relayPins[] = {S1_G, S1_R, S2_G, S2_R, S3_G, S3_R, S4_G, S4_R, SW_L, SW_R};
   for (int i = 0; i < 10; i++) {
@@ -161,11 +173,17 @@ void initializeRelays() {
   }
 }
 
+/**
+ * Configures button input pins.
+ */
 void initializeButtons() {
   pinMode(BTN1_PIN, INPUT_PULLUP);
   pinMode(BTN2_PIN, INPUT_PULLUP);
 }
 
+/**
+ * Configures ultrasonic sensor trigger and echo pins.
+ */
 void initializeSensors() {
   pinMode(TRIG1, OUTPUT); pinMode(ECHO1, INPUT);
   pinMode(TRIG2, OUTPUT); pinMode(ECHO2, INPUT);
@@ -178,18 +196,23 @@ void initializeSensors() {
   digitalWrite(TRIG4, LOW);
 }
 
+/**
+ * Prints the startup banner to serial output.
+ */
 void printStartupBanner() {
   Serial.println(F(""));
   Serial.println(F("========================================="));
-  Serial.println(F("  Railway Signaling System v2.1        "));
-  Serial.println(F("  Active-Low Relay Logic               "));
-  Serial.println(F("  EMI Blanking: 500ms                  "));
+  Serial.print(F("  Railway Signaling System v"));
+  Serial.println(SYSTEM_VERSION);
   Serial.println(F("========================================="));
   Serial.println(F(""));
   Serial.println(F("Initializing system components..."));
   Serial.println(F(""));
 }
 
+/**
+ * Prints final startup status once initialization is complete.
+ */
 void printSystemReady() {
   Serial.println(F(""));
   Serial.println(F("Initialization complete"));
@@ -198,6 +221,9 @@ void printSystemReady() {
   Serial.println(F(""));
 }
 
+/**
+ * Drives initial signal and switch positions at boot.
+ */
 void runStartupSequence() {
   // Signal 1 -> RED
   Serial.println(F("-> [1/5] Setting Signal 1 to RED"));

@@ -1,13 +1,11 @@
-/**
- * Signal and Switch Control Module
- */
+/** Signal and switch relay actuation logic. */
 
 #include "signal_control.h"
 #include "config.h"
 #include "relay_control.h"
 
 /**
- * Changes a signal state if different from current state
+ * Applies a signal state transition and pulses the required relay.
  */
 void setSignal(bool &currentState, bool newState, int pinG, int pinR) {
   if (currentState != newState) {
@@ -21,7 +19,7 @@ void setSignal(bool &currentState, bool newState, int pinG, int pinR) {
 }
 
 /**
- * Changes switch position if different from current position
+ * Applies a switch position transition and pulses the required relay.
  */
 void setSwitch(SwitchPosition newPos) {
   if (switchPosition != newPos) {

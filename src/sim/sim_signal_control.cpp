@@ -1,12 +1,13 @@
-/**
- * Signal and Switch Control Module (Simulation variant)
- */
+/** Signal and switch control with simulation LED mirroring. */
 
 #include "signal_control.h"
 #include "config.h"
 #include "relay_control.h"
 #include "sim_signal_state.h"
 
+/**
+ * Maps relay pin identities to latched state LEDs in simulation.
+ */
 void updateSignalStateLedByRelayPin(int pinG, bool isGreen) {
   int greenLedPin = -1;
   int redLedPin = -1;
@@ -31,6 +32,9 @@ void updateSignalStateLedByRelayPin(int pinG, bool isGreen) {
   }
 }
 
+/**
+ * Configures all simulated signal-state LEDs.
+ */
 void initializeSignalStateLeds() {
   pinMode(S1_LED_G, OUTPUT); pinMode(S1_LED_R, OUTPUT);
   pinMode(S2_LED_G, OUTPUT); pinMode(S2_LED_R, OUTPUT);
@@ -43,17 +47,26 @@ void initializeSignalStateLeds() {
   updateSignalStateLedByRelayPin(S4_G, sig4Green);
 }
 
+/**
+ * Updates simulated switch-state LEDs.
+ */
 void updateSwitchStateLeds(SwitchPosition position) {
   digitalWrite(SW_LED_L, position == SWITCH_LEFT ? HIGH : LOW);
   digitalWrite(SW_LED_R, position == SWITCH_RIGHT ? HIGH : LOW);
 }
 
+/**
+ * Configures simulated switch-state LEDs.
+ */
 void initializeSwitchStateLeds() {
   pinMode(SW_LED_L, OUTPUT);
   pinMode(SW_LED_R, OUTPUT);
   updateSwitchStateLeds(switchPosition);
 }
 
+/**
+ * Applies a signal state transition and mirrors it to simulation LEDs.
+ */
 void setSignal(bool &currentState, bool newState, int pinG, int pinR) {
   if (currentState != newState) {
     currentState = newState;
@@ -66,6 +79,9 @@ void setSignal(bool &currentState, bool newState, int pinG, int pinR) {
   }
 }
 
+/**
+ * Applies a switch transition and mirrors it to simulation LEDs.
+ */
 void setSwitch(SwitchPosition newPos) {
   if (switchPosition != newPos) {
     SwitchPosition oldPos = switchPosition;

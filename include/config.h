@@ -1,6 +1,9 @@
 /**
- * Configuration File
- * Contains all pin definitions, constants, and configuration parameters
+ * @file config.h
+ * @brief Hardware mapping, timing constants, and shared runtime state.
+ *
+ * This header centralizes project-level configuration so control modules can
+ * share one consistent pin map and behavioral tuning set.
  */
 
 #ifndef CONFIG_H
@@ -11,8 +14,9 @@
 // ==========================================
 // PIN DEFINITIONS
 // ==========================================
+// All pins are Arduino Mega digital pins.
 
-// Button Inputs
+// Button Inputs (active-low, INPUT_PULLUP)
 const int BTN1_PIN = 30;  // Manual request for Signal 1
 const int BTN2_PIN = 31;  // Manual request for Signal 2
 
@@ -35,7 +39,7 @@ const int SW_R = 11;  // Switch position RIGHT
 // ==========================================
 // RELAY CONTROL LOGIC
 // ==========================================
-// IMPORTANT: Verify relay logic before extended operation (to prevent damage to components)
+// Relay modules are wired active-low.
 const int RELAY_ON = LOW;
 const int RELAY_OFF = HIGH;
 
@@ -44,16 +48,32 @@ const int RELAY_OFF = HIGH;
 // ==========================================
 
 // Sensor Configuration
-const int DETECTION_THRESHOLD = 5;           // Distance in cm for train detection
-const int SENSOR_SAMPLES = 5;                // Number of readings per sensor check
-const int SENSOR_CONFIDENCE = 3;             // Minimum valid readings to confirm detection
+const int DETECT_ENTER_CM = 5;               // Occupied-entry threshold (cm)
+const int DETECT_EXIT_CM = 6;                // Occupied-exit threshold (cm); larger than enter for hysteresis
+const int SENSOR_SAMPLES = 5;                // Number of samples per sensor cycle
+const int SENSOR_CONFIDENCE = 3;             // Minimum positive votes required for occupied decision
+const unsigned long TRACK_STATE_DWELL_MS = 1500; // Minimum time before accepting opposite occupancy state
+
+// Detection stack intent:
+// 1) Hysteresis (ENTER vs EXIT) avoids rapid toggling around a single threshold.
+// 2) Vote confidence rejects single-sample outliers.
+// 3) Dwell time prevents relay thrash from short occupancy flicker.
 
 // Timing Parameters
-const unsigned long RELAY_PULSE_MS = 200;    // Relay pulse duration (milliseconds)
-const unsigned long BLANKING_MS = 500;       // EMI blanking after relay activation (milliseconds)
-const unsigned long LOCKOUT_DURATION = 5000; // Button lockout duration (milliseconds)
-const unsigned long SENSOR_INTERVAL = 1000;  // Sensor check interval (milliseconds)
-const unsigned long BUTTON_DEBOUNCE_MS = 50; // Button debounce interval (milliseconds)
+const unsigned long RELAY_PULSE_MS = 200;    // Relay pulse width
+const unsigned long BLANKING_MS = 500;       // Initial blanking after relay movement
+const unsigned long MIN_BLANKING_MS = 300;   // Lower limit for adaptive blanking
+const unsigned long MAX_BLANKING_MS = 1200;  // Upper limit for adaptive blanking
+const unsigned long BLANKING_STEP_MS = 100;  // Step size for adaptive blanking adjustments
+const unsigned long LOCKOUT_DURATION = 5000; // Command lockout interval after granted movement requests
+const unsigned long SENSOR_INTERVAL = 1000;  // Sensor polling period
+const unsigned long BUTTON_DEBOUNCE_MS = 50; // Debounce window for button edge detection
+
+// Adaptive blanking rationale:
+// Relay transitions can inject transient noise into ultrasonic echoes.
+// Blanking prevents immediate post-relay readings from driving occupancy logic.
+// Runtime code adjusts blanking within [MIN, MAX] based on recent instability.
+// Instability is inferred from borderline vote outcomes near SENSOR_CONFIDENCE.
 
 enum SwitchPosition : uint8_t {
 	SWITCH_LEFT = 0,
@@ -64,32 +84,32 @@ enum SwitchPosition : uint8_t {
 // GLOBAL STATE VARIABLES (EXTERN)
 // ==========================================
 
-// Button States
+// Button States (previous sampled logic level, for edge detection)
 extern bool lastBtn1State;
 extern bool lastBtn2State;
 
-// Track Occupancy States
+// Track Occupancy States (previous filtered occupancy per track)
 extern bool prevOcc1;
 extern bool prevOcc2;
 extern bool prevOcc3;
 extern bool prevOcc4;
 
-// Signal States
+// Signal States (false = RED, true = GREEN)
 extern bool sig1Green;
 extern bool sig2Green;
 extern bool sig3Green;
 extern bool sig4Green;
 
-// Switch Position
+// Switch Position (last commanded turnout state)
 extern SwitchPosition switchPosition;
 
 // Timing Variables
 extern unsigned long previousSensorCheck;
 extern unsigned long lockoutTimer;
-extern unsigned long lastRelayMove;
+extern unsigned long lastRelayMove;          // Timestamp of latest relay activation
 extern bool isLocked;
 
-// Relay Management
+// Relay Management: off-time scheduler indexed by digital pin number.
 extern unsigned long relayOffTime[40];
 
 #endif // CONFIG_H
